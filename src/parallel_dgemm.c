@@ -35,8 +35,7 @@ int main()
 #pragma omp parallel 
 {    
     if(omp_get_thread_num() == 0){
-    int ID = omp_get_thread_num();
-    printf("I am thread%d\n",ID); 
+    printf("I am thread%d\n",omp_get_thread_num()); 
 
     double *A, *B, *C;
     int m, n, p, i, j, r, max_threads;
