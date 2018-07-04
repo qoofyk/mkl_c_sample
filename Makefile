@@ -11,13 +11,13 @@
 #
 # =============================================================
 
-CC := icc
+CC := icpc
 SRCDIR := src
 BUILDDIR := release
-CCFLAGS := -qopenmp
+CCFLAGS := -std=c++11 -qopenmp -O2
 LIBFLAGS := -mkl -static-intel 
 
-all: $(BUILDDIR)/dgemm_example $(BUILDDIR)/dgemm_with_timing $(BUILDDIR)/matrix_multiplication $(BUILDDIR)/dgemm_threading_effect_example $(BUILDDIR)/parallel_dgemm 
+all: $(BUILDDIR)/dgemm_example $(BUILDDIR)/dgemm_with_timing $(BUILDDIR)/matrix_multiplication $(BUILDDIR)/dgemm_threading_effect_example $(BUILDDIR)/parallel_dgemm  $(BUILDDIR)/parallel_daxpy $(BUILDDIR)/parallel_compute_bound $(BUILDDIR)/parallel_memory_bound
 
 $(BUILDDIR)/%: $(BUILDDIR)/%.o
 	$(CC) $< $(LIBFLAGS) -o $@
@@ -40,6 +40,15 @@ run_dgemm_threading_effect_example: $(BUILDDIR)/dgemm_threading_effect_example
 
 run_parallel_dgemm: $(BUILDDIR)/parallel_dgemm
 	./$(BUILDDIR)/parallel_dgemm
+
+run_parallel_daxpy: $(BUILDDIR)/parallel_daxpy
+	./$(BUILDDIR)/parallel_daxpy
+
+run_parallel_compute_bound: $(BUILDDIR)/parallel_compute_bound
+	./$(BUILDDIR)/parallel_compute_bound
+	
+run_parallel_memory_bound: $(BUILDDIR)/parallel_memory_bound
+	./$(BUILDDIR)/parallel_memory_bound
 
 clean:
 	@echo " Cleaning..."

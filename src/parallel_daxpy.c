@@ -27,7 +27,7 @@
 
 /* Consider adjusting LOOP_COUNT based on the performance of your computer */
 /* to make sure that total run time is at least 1 second */
-#define LOOP_COUNT 10  
+#define LOOP_COUNT 1000  
 
 int main()
 {
@@ -88,22 +88,20 @@ int main()
         printf (" Requesting Intel(R) MKL to use %i thread(s) \n\n", i);
         mkl_set_num_threads(1);
 
-        printf (" Making the first run of matrix product using Intel(R) MKL dgemm function \n"
+        printf (" Making the first run of DAXPY\n"
                 " via CBLAS interface to get stable run time measurements \n\n");
-        cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, 
-                    m, n, p, alpha, A, p, B, n, beta, C, n);
-        
-        printf (" Measuring performance of matrix product using Intel(R) MKL dgemm function \n"
+        cblas_daxpy(N*N, alpha, A, 1, B, 1);
+
+        printf (" Measuring performance of DAXPY\n"
                 " via CBLAS interface on %i thread(s) \n\n", i);
         s_initial = dsecnd();
         for (r = 0; r < LOOP_COUNT; r++) {
-            cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, 
-                        m, n, p, alpha, A, p, B, n, beta, C, n);
+            cblas_daxpy(N*N, alpha, A, 1, B, 1);
         }
         s_elapsed = (dsecnd() - s_initial) / LOOP_COUNT;
 
-        printf (" == Matrix multiplication using Intel(R) MKL dgemm completed ==\n"
-                " == at %.5f milliseconds using %d thread(s) FLOPS=%.3f ==\n\n", (s_elapsed * 1000), i, 2*(double)N*(double)N*(double)N/s_elapsed*1e-9);
+        printf (" == DAXPY completed ==\n"
+                " == at %.5f milliseconds using %d thread(s) FLOPS=%.3f ==\n\n", (s_elapsed * 1000), i, 2*(double)N*(double)N/s_elapsed*1e-9);
     }
     
     printf (" Deallocating memory \n\n");

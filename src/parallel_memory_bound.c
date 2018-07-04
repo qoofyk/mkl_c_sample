@@ -27,7 +27,7 @@
 
 /* Consider adjusting LOOP_COUNT based on the performance of your computer */
 /* to make sure that total run time is at least 1 second */
-#define LOOP_COUNT 10  
+#define LOOP_COUNT 1000 
 
 int main()
 {
@@ -37,8 +37,9 @@ int main()
     printf("I am thread%d\n",omp_get_thread_num()); 
 
     double *A, *B, *C;
-    int m, n, p, i, j, r, max_threads;
+    int m, n, p, i, j, k, r, max_threads;
     double alpha, beta;
+    double sum;
     double s_initial, s_elapsed;
 
     printf ("\n This example demonstrates threading impact on computing real matrix product \n"
@@ -81,29 +82,44 @@ int main()
     max_threads = mkl_get_max_threads();
 
     printf (" Running Intel(R) MKL from 1 to %i threads \n\n", max_threads);
-    for (i = 1; i <= max_threads; i++) {
+    for (int num_threads = 1; num_threads <= max_threads; num_threads++) {
         for (j = 0; j < (m*n); j++)
             C[j] = 0.0;
         
-        printf (" Requesting Intel(R) MKL to use %i thread(s) \n\n", i);
-        mkl_set_num_threads(1);
+        /*printf (" Requesting Intel(R) MKL to use %i thread(s) \n\n", i);*/
+        /*mkl_set_num_threads(1);*/
 
-        printf (" Making the first run of matrix product using Intel(R) MKL dgemm function \n"
-                " via CBLAS interface to get stable run time measurements \n\n");
-        cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, 
-                    m, n, p, alpha, A, p, B, n, beta, C, n);
+        /*printf (" Making the first run of matrix product using Intel(R) MKL dgemm function \n"*/
+                /*" via CBLAS interface to get stable run time measurements \n\n");*/
+        /*cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, */
+                    /*m, n, p, alpha, A, p, B, n, beta, C, n);*/
         
-        printf (" Measuring performance of matrix product using Intel(R) MKL dgemm function \n"
-                " via CBLAS interface on %i thread(s) \n\n", i);
+        /*printf (" Measuring performance of matrix product using Intel(R) MKL dgemm function \n"*/
+                /*" via CBLAS interface on %i thread(s) \n\n", i);*/
+        /*s_initial = dsecnd();*/
+        /*for (r = 0; r < LOOP_COUNT; r++) {*/
+            /*cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, */
+                        /*m, n, p, alpha, A, p, B, n, beta, C, n);*/
+        /*}*/
+
+        printf (" Making the first run of memory bound kernel\n"
+                " to get stable run time measurements \n\n");
+        for (i = 0; i < N*N; i++) {
+           C[i] = alpha * A[i] + B[i];
+        }
+
+        printf (" Measuring performance of memory bound kernel\n\n");
         s_initial = dsecnd();
         for (r = 0; r < LOOP_COUNT; r++) {
-            cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, 
-                        m, n, p, alpha, A, p, B, n, beta, C, n);
+             for (i = 0; i < N*N; i++) {
+               C[i] = alpha * A[i] + B[i];
+            }   
         }
+
         s_elapsed = (dsecnd() - s_initial) / LOOP_COUNT;
 
-        printf (" == Matrix multiplication using Intel(R) MKL dgemm completed ==\n"
-                " == at %.5f milliseconds using %d thread(s) FLOPS=%.3f ==\n\n", (s_elapsed * 1000), i, 2*(double)N*(double)N*(double)N/s_elapsed*1e-9);
+        printf (" == Memory bound kernel completed ==\n"
+                " == at %.5f milliseconds using %d thread(s) FLOPS=%.3f ==\n\n", (s_elapsed * 1000), num_threads, 2*(double)N*(double)N*(double)N/s_elapsed*1e-9);
     }
     
     printf (" Deallocating memory \n\n");
