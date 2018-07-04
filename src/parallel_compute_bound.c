@@ -25,10 +25,10 @@
 #include "mkl.h"
 #include <omp.h>
 #include <math.h>
-
+#include <limits.h>
 /* Consider adjusting LOOP_COUNT based on the performance of your computer */
 /* to make sure that total run time is at least 1 second */
-#define LOOP_COUNT 1 
+#define LOOP_COUNT 200000 
 
 int main()
 {
@@ -105,29 +105,29 @@ int main()
         /*}*/
 
         // triple nested loop matmul ijk
-        printf (" Making the first run of matrix product using triple nested loop\n"
-                " to get stable run time measurements \n\n");
-        for (i = 0; i < m; i++) {
-            for (j = 0; j < n; j++) {
-                sum = 0.0;
-                for (k = 0; k < p; k++)
-                    sum += A[p*i+k] * B[n*k+j];
-                C[n*i+j] = sum;
-            }
-        }
+/*        printf (" Making the first run of matrix product using triple nested loop\n"*/
+                /*" to get stable run time measurements \n\n");*/
+        /*for (i = 0; i < m; i++) {*/
+            /*for (j = 0; j < n; j++) {*/
+                /*sum = 0.0;*/
+                /*for (k = 0; k < p; k++)*/
+                    /*sum += A[p*i+k] * B[n*k+j];*/
+                /*C[n*i+j] = sum;*/
+            /*}*/
+        /*}*/
 
-        printf (" Measuring performance of matrix product using triple nested loop \n\n");
-        s_initial = dsecnd();
-        for (r = 0; r < LOOP_COUNT; r++) {
-            for (i = 0; i < m; i++) {
-                for (j = 0; j < n; j++) {
-                    sum = 0.0;
-                    for (k = 0; k < p; k++)
-                        sum += A[p*i+k] * B[n*k+j];
-                    C[n*i+j] = sum;
-                }
-            }
-        }
+        /*printf (" Measuring performance of matrix product using triple nested loop \n\n");*/
+        /*s_initial = dsecnd();*/
+        /*for (r = 0; r < LOOP_COUNT; r++) {*/
+            /*for (i = 0; i < m; i++) {*/
+                /*for (j = 0; j < n; j++) {*/
+                    /*sum = 0.0;*/
+                    /*for (k = 0; k < p; k++)*/
+                        /*sum += A[p*i+k] * B[n*k+j];*/
+                    /*C[n*i+j] = sum;*/
+                /*}*/
+            /*}*/
+        /*}*/
 
         // jik
 /*        printf (" Making the first run of matrix product using triple nested loop\n"*/
@@ -152,22 +152,33 @@ int main()
             /*}    */
         /*}*/
 
-        /*printf (" Making the first run of Compute Bound kernel\n"*/
-                /*" to get stable run time measurements \n\n");*/
-        /*int bound=4000;*/
-        /*for (i = 0; i < m*p; i++) {*/
-            /*double a=A[i], b=B[i], c=C[i];*/
-            /*for (j=0; j<bound; j++)*/
-                /*c=sqrt(a/b);*/
-        /*}*/
+        // my computer kernel
+        printf (" Making the first run of Compute Bound kernel\n"
+                " to get stable run time measurements \n\n");
+        int bound=INT_MAX;
+        for (i = 0; i < m*p; i++) {
+            double a=A[i], b=B[i], c=C[i];
+            for (j=0; j<bound; j++){
+                for (k=0; k<bound; k++){
+                    c=sqrt(a/b);
+                    c=pow(c,a);
+                }    
+            }    
+            C[i] = c;
+        }
 
-        /*printf (" Measuring performance of Compute Bound kernel\n\n");*/
-        /*s_initial = dsecnd();*/
-        /*for (r = 0; r < LOOP_COUNT; r++) {*/
-            /*double a=A[i], b=B[i], c=C[i];*/
-            /*for (j=0; j<bound; j++)*/
-                /*c=sqrt(a/b);*/
-        /*}*/
+        printf (" Measuring performance of Compute Bound kernel\n\n");
+        s_initial = dsecnd();
+        for (r = 0; r < LOOP_COUNT; r++) {
+            double a=A[i], b=B[i], c=C[i];
+            for (j=0; j<bound; j++){
+                for (k=0; k<bound; k++){
+                    c=sqrt(a/b);
+                    c=pow(c,a);
+                }
+            }    
+            C[i] = c;
+        }
 
         s_elapsed = (dsecnd() - s_initial) / LOOP_COUNT;
 

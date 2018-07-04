@@ -27,7 +27,7 @@
 
 /* Consider adjusting LOOP_COUNT based on the performance of your computer */
 /* to make sure that total run time is at least 1 second */
-#define LOOP_COUNT 10  
+#define LOOP_COUNT 50  
 
 int main()
 {
