@@ -1,0 +1,5 @@
+README file
+
+Build:
+cd /mkl_c_sample
+make 
