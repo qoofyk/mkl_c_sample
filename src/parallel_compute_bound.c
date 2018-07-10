@@ -34,7 +34,12 @@
 
 int main(int argc, char** argv)
 {
-
+    double time[128]; 
+    int threads = atoi(getenv("OMP_NUM_THREADS"));
+    printf ("\n This example demonstrates threading impact on compute kernel \n"
+            " A[i]= A[i]^1 + ... + A[i]^bound\n"
+            " double precision scalars \n\n");
+ 
 #pragma omp parallel 
 {    
     printf("I am thread%d\n",omp_get_thread_num()); 
@@ -47,10 +52,6 @@ int main(int argc, char** argv)
 
     loop_cnt = LOOP_COUNT;
 
-    printf ("\n This example demonstrates threading impact on compute kernel \n"
-            " C=alpha*A*B+beta*C using Intel(R) MKL function dgemm, where A, B, and C are \n"
-            " matrices and alpha and beta are double precision scalars \n\n");
-    
     m =  p =  n = 2560;
     int bound=20;
 
@@ -69,7 +70,7 @@ int main(int argc, char** argv)
 
     int N = m;
 
-    printf (" N=%d, loop_cnt=%d\n", N, loop_cnt);
+    printf (" N=%d, loop_cnt=%d, bound=%d\n", N, loop_cnt, bound);
 
     printf (" Initializing data for matrix multiplication C=A*B for matrix \n"
             " A(%ix%i) and matrix B(%ix%i)\n\n", m, p, p, n);
@@ -196,7 +197,7 @@ int main(int argc, char** argv)
 
         printf (" == Compute Bound kernel completed ==\n"
                 " == at %.5f milliseconds, %.2f seconds, using %d thread(s) MFLOPS=%.3f ==\n\n", 
-                (s_elapsed * 1000), s_elapsed*loop_cnt, num_threads, 2*(double)N*bound/s_elapsed*1e-6);
+                (s_elapsed * 1000), s_elapsed*loop_cnt, num_threads, 2*(double)N*bound / s_elapsed*1e-6);
     }
     
     printf (" Deallocating memory \n\n");
@@ -212,6 +213,13 @@ int main(int argc, char** argv)
                " of measurements\n\n", i);
     }
 }
+    // compute average
+    double average=0.0;
+    for (int i=0; i < threads; i++)
+        average += time[i]; 
+    average = average / threads;
+    printf("AE= %.3f ms\n", average);
+
     printf (" Example completed. \n\n");
     return 0;
  

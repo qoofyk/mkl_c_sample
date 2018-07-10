@@ -32,7 +32,10 @@
 
 int main(int argc, char** argv)
 {
-
+    printf ("\n This example demonstrates threading impact on computing real matrix product \n"
+            " C=alpha*A*B+beta*C using Intel(R) MKL function dgemm, where A, B, and C are \n"
+            " matrices and alpha and beta are double precision scalars \n\n");
+ 
 #pragma omp parallel 
 {    
     printf("I am thread%d\n",omp_get_thread_num()); 
@@ -43,11 +46,7 @@ int main(int argc, char** argv)
     double s_initial, s_elapsed;
 
     loop_cnt =  LOOP_COUNT;
-
-    printf ("\n This example demonstrates threading impact on computing real matrix product \n"
-            " C=alpha*A*B+beta*C using Intel(R) MKL function dgemm, where A, B, and C are \n"
-            " matrices and alpha and beta are double precision scalars \n\n");
-    
+   
     m =  p =  n = 2560;
 
     //parse command line

@@ -14,7 +14,7 @@
 CC := icpc
 SRCDIR := src
 BUILDDIR := release
-CCFLAGS := -std=c++11 -qopenmp -O3
+CCFLAGS := -std=c++11 -qopenmp -O2
 LIBFLAGS := -mkl -static-intel 
 
 all: $(BUILDDIR)/dgemm_example $(BUILDDIR)/dgemm_with_timing $(BUILDDIR)/matrix_multiplication $(BUILDDIR)/dgemm_threading_effect_example $(BUILDDIR)/parallel_dgemm  $(BUILDDIR)/parallel_daxpy $(BUILDDIR)/parallel_compute_bound $(BUILDDIR)/parallel_memory_bound

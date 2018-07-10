@@ -2,4 +2,14 @@ README file
 
 Build:
 cd /mkl_c_sample
+mkdir release
+mkdir results
 make 
+
+Run:
+export OMP_NUM_THREADS=2
+export KMP_AFFINITY=verbose,granularity=fine,compact,1,0
+export KMP_AFFINITY=verbose,granularity=fine,scatter
+
+./parallel_compute_bound -size 2560 -cnt 200 -bound 20
+./parallel_memory_bound -size 2560 -cnt 300 -step 1024
