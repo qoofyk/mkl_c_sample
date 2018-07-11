@@ -1,13 +1,20 @@
 #==============================================================
 #
-# SAMPLE SOURCE CODE - SUBJECT TO THE TERMS OF SAMPLE CODE LICENSE AGREEMENT,
-# http://software.intel.com/en-us/articles/intel-sample-source-code-license-agreement/
+# Copyright 2018 Los Alamos National Laboratory
+# Copyright 2009-2018 The Purdue University and Purdue University
+#                     Research Foundation
 #
-# Copyright 2005-2017 Intel Corporation
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-# THIS FILE IS PROVIDED "AS IS" WITH NO WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT
-# NOT LIMITED TO ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
-# PURPOSE, NON-INFRINGEMENT OF INTELLECTUAL PROPERTY RIGHTS.
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 #
 # =============================================================
 
@@ -17,7 +24,7 @@ BUILDDIR := release
 CCFLAGS := -std=c++11 -qopenmp -O2
 LIBFLAGS := -mkl -static-intel 
 
-all: $(BUILDDIR)/dgemm_example $(BUILDDIR)/dgemm_with_timing $(BUILDDIR)/matrix_multiplication $(BUILDDIR)/dgemm_threading_effect_example $(BUILDDIR)/parallel_dgemm  $(BUILDDIR)/parallel_daxpy $(BUILDDIR)/parallel_compute_bound $(BUILDDIR)/parallel_memory_bound
+all: $(BUILDDIR)/dgemm_example $(BUILDDIR)/dgemm_with_timing $(BUILDDIR)/matrix_multiplication $(BUILDDIR)/dgemm_threading_effect_example $(BUILDDIR)/parallel_dgemm  $(BUILDDIR)/parallel_daxpy $(BUILDDIR)/parallel_compute_bound $(BUILDDIR)/parallel_memory_bound $(BUILDDIR)/parallel_load_imbalance
 
 $(BUILDDIR)/%: $(BUILDDIR)/%.o
 	$(CC) $< $(LIBFLAGS) -o $@
@@ -49,6 +56,9 @@ run_parallel_compute_bound: $(BUILDDIR)/parallel_compute_bound
 	
 run_parallel_memory_bound: $(BUILDDIR)/parallel_memory_bound
 	./$(BUILDDIR)/parallel_memory_bound
+
+run_parallel_load_imbalance: $(BUILDDIR)/parallel_load_imbalance
+	./$(BUILDDIR)/parallel_load_imbalance
 
 clean:
 	@echo " Cleaning..."

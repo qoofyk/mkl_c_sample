@@ -1,17 +1,25 @@
-@echo off
 REM ==============================================================
-REM
-REM SAMPLE SOURCE CODE - SUBJECT TO THE TERMS OF SAMPLE CODE LICENSE AGREEMENT,
-REM http://software.intel.com/en-us/articles/intel-sample-source-code-license-agreement/
-REM
-REM Copyright 2005-2017 Intel Corporation
-REM
-REM THIS FILE IS PROVIDED "AS IS" WITH NO WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT
-REM NOT LIMITED TO ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
-REM PURPOSE, NON-INFRINGEMENT OF INTELLECTUAL PROPERTY RIGHTS.
-REM
+
+REM Copyright 2018 Los Alamos National Laboratory
+REM Copyright 2009-2018 The Purdue University and Purdue University
+REM                     Research Foundation
+
+REM Licensed under the Apache License, Version 2.0 (the "License");
+REM you may not use this file except in compliance with the License.
+REM You may obtain a copy of the License at
+
+REM     http://www.apache.org/licenses/LICENSE-2.0
+
+REM Unless required by applicable law or agreed to in writing, software
+REM distributed under the License is distributed on an "AS IS" BASIS,
+REM WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+REM See the License for the specific language governing permissions and
+REM limitations under the License.
+
 REM =============================================================
 
+
+@echo off
 set SRCDIR=src\
 set DESTDIR=release\
 set LIBFLAGS=/Qmkl

@@ -1,15 +1,19 @@
-//==============================================================
-//
-// SAMPLE SOURCE CODE - SUBJECT TO THE TERMS OF SAMPLE CODE LICENSE AGREEMENT,
-// http://software.intel.com/en-us/articles/intel-sample-source-code-license-agreement/
-//
-// Copyright 2016-2017 Intel Corporation
-//
-// THIS FILE IS PROVIDED "AS IS" WITH NO WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT
-// NOT LIMITED TO ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
-// PURPOSE, NON-INFRINGEMENT OF INTELLECTUAL PROPERTY RIGHTS.
-//
-// =============================================================
+/* Copyright 2018 Los Alamos National Laboratory
+ * Copyright 2009-2018 Purdue University and Purdue University Research Foundation
+ *                      
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /*******************************************************************************
 *   This example demonstrates threading impact on computing real matrix product 
 *   C=alpha*A*B+beta*C using Intel(R) MKL subroutine DGEMM, where A, B, and C 
@@ -32,10 +36,13 @@
 
 int main(int argc, char** argv)
 {
-
+    printf ("\n This example demonstrates threading impact on computing real matrix product \n"
+            " C=alpha*A*B+beta*C using Intel(R) MKL function dgemm, where A, B, and C are \n"
+            " matrices and alpha and beta are double precision scalars \n\n");
+ 
 #pragma omp parallel 
 {    
-    printf("I am thread%d\n",omp_get_thread_num()); 
+    printf("I am thread%d\n", omp_get_thread_num()); 
 
     double *A, *B, *C;
     int m, n, p, i, j, r, max_threads, loop_cnt;
@@ -43,11 +50,7 @@ int main(int argc, char** argv)
     double s_initial, s_elapsed;
 
     loop_cnt = LOOP_COUNT;
-
-    printf ("\n This example demonstrates threading impact on computing real matrix product \n"
-            " C=alpha*A*B+beta*C using Intel(R) MKL function dgemm, where A, B, and C are \n"
-            " matrices and alpha and beta are double precision scalars \n\n");
-    
+   
     m =  p =  n = 2560;
 
     //parse command line
