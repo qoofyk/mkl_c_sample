@@ -117,8 +117,8 @@ int main(int argc, char** argv)
 
         printf (" Making the first run of memory bound kernel\n"
                 " to get stable run time measurements \n\n");
-        for (i = 0; i < N*N; i++) {
-           for (j = 0; j < step; j++) {
+        for (i = 0; i < step; i++) {
+           for (j = 0; j < (N*N/step); j++) {
                k = (i+j*step) % (N*N);
                /*printf("i=%d, j=%d, k=%d\n", i, j, k);*/
                C[k] = alpha * A[k] + beta * B[k]; 
@@ -128,8 +128,8 @@ int main(int argc, char** argv)
         printf (" Measuring performance of memory bound kernel\n\n");
         s_initial = dsecnd();
         for (r = 0; r < loop_cnt; r++) {
-            for (i = 0; i < N*N; i++) {
-                for (j = 0; j < step; j++) {
+            for (i = 0; i < step; i++) {
+                for (j = 0; j < (N*N/step); j++) {
                    k = (i+j*step) % (N*N);
                    C[k] = alpha * A[k] + beta * B[k]; 
                 }
