@@ -39,7 +39,6 @@
 int main(int argc, char** argv)
 {
     double time[128]; 
-    int N;
     int threads = atoi(getenv("OMP_NUM_THREADS"));
 
     printf ("\n This example demonstrates threading impact on memory kernel\n"
@@ -74,7 +73,7 @@ int main(int argc, char** argv)
       }
     }    
 
-    N = m;
+    int N = m;
 
     printf (" N=%d, loop_cnt=%d, step=%d\n", N, loop_cnt, step);
 
@@ -131,7 +130,7 @@ int main(int argc, char** argv)
            for (j = 0; j < (N*N/step); j++) {
                k = (i+j*step) % (N*N);
                /*printf("i=%d, j=%d, k=%d\n", i, j, k);*/
-               C[k] = A[k] + B[k]; 
+               C[k] = alpha * A[k] + beta * B[k]; 
            }    
         }
 
@@ -142,7 +141,7 @@ int main(int argc, char** argv)
             for (i = 0; i < step; i++) {
                 for (j = 0; j < (N*N/step); j++) {
                    k = (i+j*step) % (N*N);
-                   C[k] = A[k] + B[k]; 
+                   C[k] = alpha * A[k] + beta * B[k]; 
                 }
             }   
         }
@@ -176,10 +175,7 @@ int main(int argc, char** argv)
     for (int i=0; i < threads; i++)
         average += time[i]; 
     average = average / threads;
-    printf(" AE= %.3f ms, Each thread uses %.3f MB, Total_Memory_bandwidth= %f MB/s\n", 
-            average, 3*(double)N*(double)N*sizeof(double)/(1024*1024),
-            3*(double)N*(double)N*sizeof(double)*threads/(1024*1024*1000*average));
-
+    printf(" AE= %.3f ms\n", average);
 
     printf (" Example completed. \n\n");
     return 0;

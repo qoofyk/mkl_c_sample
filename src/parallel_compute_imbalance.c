@@ -45,7 +45,7 @@ int main(int argc, char** argv)
 #pragma omp parallel 
 {    
     int myid = omp_get_thread_num();
-    printf("I am thread%d\n", myid); 
+    printf("I am thread%02d\n", myid); 
 
     double *A, *B, *C;
     int m, n, p, i, j, k, r, max_threads, loop_cnt;
@@ -79,53 +79,58 @@ int main(int argc, char** argv)
 
     printf (" N=%d, loop_cnt=%d, bound=%d\n", N, loop_cnt, bound);
 
-    printf (" Initializing data for matrix multiplication C=A*B for matrix \n"
+    if(myid==1)
+        printf (" Initializing data for matrix multiplication C=A*B for matrix \n"
             " A(%ix%i) and matrix B(%ix%i)\n\n", m, p, p, n);
     alpha = 1.0; beta = 0.0;
     
-    printf (" Allocating memory for matrices aligned on 64-byte boundary for better \n"
+    if(myid==1)
+        printf (" Allocating memory for matrices aligned on 64-byte boundary for better \n"
             " performance \n\n");
     A = (double *)mkl_malloc( m*p*sizeof( double ), 64 );
-    if (A == NULL || B == NULL || C == NULL) {
+    if (A == NULL) {
         printf( "\n ERROR: Can't allocate memory for matrices. Aborting... \n\n");
         mkl_free(A);
     }
 
-    printf (" Intializing matrix data \n\n");
+    if(myid==1)
+        printf (" Intializing matrix data \n\n");
     for (i = 0; i < (m*p); i++) {
         A[i] = (double)(i+1);
     }
 
-    printf (" Finding max number of threads Intel(R) MKL can use for parallel runs \n\n");
+    if(myid==1)
+        printf (" Finding max number of threads Intel(R) MKL can use for parallel runs \n\n");
     max_threads = mkl_get_max_threads();
 
-    printf (" Running Intel(R) MKL from 1 to %i threads \n\n", max_threads);
+    if(myid==1)
+        printf (" Running Intel(R) MKL from 1 to %i threads \n\n", max_threads);
     for (int num_threads = 1; num_threads <= max_threads; num_threads++) {
 
         // my computer kernel
         double temp;
-        printf (" Making the first run of Compute Bound kernel\n"
-                " to get stable run time measurements \n\n");
+        if(myid==1)
+            printf (" Making the first run of Compute Bound kernel\n"
+                    " to get stable run time measurements \n\n");
         for (i = 0; i < m*p; i++) {
-            /*double a=A[i], b=B[i], c=C[i];*/
-            sum = 0.0;
             temp=A[i];
+            sum = temp;
             for (j=0; j<bound; j++){
-                    /*c=sqrt(a/b);*/
                     temp *=temp;
-                    /*sum+=pow(temp,j);*/
                     sum += temp;
                 }    
             A[i] = sum;
         }
 
-        printf (" Measuring performance of Compute Bound kernel\n\n");
+        if(myid==1)
+            printf (" Measuring performance of Compute Bound kernel\n\n");
+
         s_initial = dsecnd();
 
         for (r = 0; r < loop_cnt; r++) {
              for (i = 0; i < m*p; i++) {
-                sum = 0.0;
                 temp=A[i];
+                sum = temp;
                 for (j=0; j<bound; j++){
                     temp *=temp;
                     sum += temp;
@@ -142,7 +147,8 @@ int main(int argc, char** argv)
                 (s_elapsed * 1000), s_elapsed*loop_cnt, num_threads, 2*(double)N*bound / s_elapsed*1e-6);
     }
     
-    printf (" Deallocating memory \n\n");
+    if(myid==1)
+        printf (" Deallocating memory \n\n");
     mkl_free(A);
     
     if (s_elapsed < 0.9/loop_cnt) {

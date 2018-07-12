@@ -13,3 +13,6 @@ export KMP_AFFINITY=verbose,granularity=fine,scatter
 
 ./parallel_compute_bound -size 2560 -cnt 200 -bound 20
 ./parallel_memory_bound -size 2560 -cnt 300 -step 1024
+
+Get results:
+less results/180712_1518/log | grep AE | cut -d ',' -f 1 | sed 's/[^0-9.]//g'

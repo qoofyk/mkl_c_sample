@@ -21,10 +21,11 @@
 CC := icpc
 SRCDIR := src
 BUILDDIR := release
-CCFLAGS := -std=c++11 -qopenmp -O2
+CCFLAGS := -std=c++11 -qopenmp -O3
 LIBFLAGS := -mkl -static-intel 
 
-all: $(BUILDDIR)/dgemm_example $(BUILDDIR)/dgemm_with_timing $(BUILDDIR)/matrix_multiplication $(BUILDDIR)/dgemm_threading_effect_example $(BUILDDIR)/parallel_dgemm  $(BUILDDIR)/parallel_daxpy $(BUILDDIR)/parallel_compute_bound $(BUILDDIR)/parallel_memory_bound $(BUILDDIR)/parallel_load_imbalance
+all: $(BUILDDIR)/dgemm_example $(BUILDDIR)/dgemm_with_timing $(BUILDDIR)/matrix_multiplication $(BUILDDIR)/dgemm_threading_effect_example $(BUILDDIR)/parallel_dgemm  $(BUILDDIR)/parallel_daxpy $(BUILDDIR)/parallel_compute_bound $(BUILDDIR)/parallel_memory_bound $(BUILDDIR)/parallel_compute_imbalance $(BUILDDIR)/parallel_memory_imbalance
+
 
 $(BUILDDIR)/%: $(BUILDDIR)/%.o
 	$(CC) $< $(LIBFLAGS) -o $@
@@ -57,8 +58,11 @@ run_parallel_compute_bound: $(BUILDDIR)/parallel_compute_bound
 run_parallel_memory_bound: $(BUILDDIR)/parallel_memory_bound
 	./$(BUILDDIR)/parallel_memory_bound
 
-run_parallel_load_imbalance: $(BUILDDIR)/parallel_load_imbalance
-	./$(BUILDDIR)/parallel_load_imbalance
+run_parallel_compute_imbalance: $(BUILDDIR)/parallel_compute_imbalance
+	./$(BUILDDIR)/parallel_compute_imbalance
+	
+run_parallel_memory_imbalance: $(BUILDDIR)/parallel_memory_imbalance
+	./$(BUILDDIR)/parallel_memory_imbalance
 
 clean:
 	@echo " Cleaning..."
