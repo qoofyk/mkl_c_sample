@@ -88,12 +88,12 @@ int main(int argc, char** argv)
         printf (" Allocating memory for matrices aligned on 64-byte boundary for better \n"
                 " performance \n\n");
     A = (double *)mkl_malloc( m*p*sizeof( double ), 64 );
-    B = (double *)mkl_malloc( p*n*sizeof( double ), 64 );
+    /*B = (double *)mkl_malloc( p*n*sizeof( double ), 64 );*/
     C = (double *)mkl_malloc( m*n*sizeof( double ), 64 );
-    if (A == NULL || B == NULL || C == NULL) {
+    if (A == NULL || C == NULL) {
         printf( "\n ERROR: Can't allocate memory for matrices. Aborting... \n\n");
         mkl_free(A);
-        mkl_free(B);
+        /*mkl_free(B);*/
         mkl_free(C);
     }
 
@@ -103,9 +103,9 @@ int main(int argc, char** argv)
         A[i] = (double)(i+1);
     }
 
-    for (i = 0; i < (p*n); i++) {
-        B[i] = (double)(-i-1);
-    }
+    /*for (i = 0; i < (p*n); i++) {*/
+        /*B[i] = (double)(-i-1);*/
+    /*}*/
 
     for (i = 0; i < (m*n); i++) {
         C[i] = 0.0;
@@ -128,39 +128,41 @@ int main(int argc, char** argv)
         if(myid==1)
             printf (" Making the first run of memory bound kernel\n"
                 " to get stable run time measurements \n\n");
-        for (i = 0; i < step; i++) {
-           for (j = 0; j < (N*N/step); j++) {
-               k = (i+j*step) % (N*N);
+/*        for (i = 0; i < step; i++) {*/
+           /*for (j = 0; j < (N*N/step); j++) {*/
+               /*k = (i+j*step) % (N*N);*/
                /*printf("i=%d, j=%d, k=%d\n", i, j, k);*/
-               C[k] = A[k] + B[k]; 
-           }    
-        }
+               /*C[k] = A[k] + B[k]; */
+               memcpy(C, A, sizeof(double)*N*N);
+/*           }    */
+        /*}*/
 
         if(myid==1)
             printf (" Measuring performance of memory bound kernel\n\n");
         s_initial = get_cur_time();
         for (r = 0; r < loop_cnt; r++) {
-            for (i = 0; i < step; i++) {
-                for (j = 0; j < (N*N/step); j++) {
-                   k = (i+j*step) % (N*N);
-                   C[k] = A[k] + B[k]; 
-                }
-            }   
+  /*          for (i = 0; i < step; i++) {*/
+                /*for (j = 0; j < (N*N/step); j++) {*/
+                   /*[>k = (i+j*step) % (N*N);<]*/
+                   /*[>C[k] = A[k] + B[k]; <]*/
+                   memcpy(C, A, sizeof(double)*N*N);
+    /*            }*/
+            /*}   */
         }
 
         s_elapsed = (get_cur_time() - s_initial) / (double) loop_cnt;
         time[myid] = s_elapsed * 1000;
 
         printf (" == Memory bound kernel completed ==\n"
-                " == at %.5f milliseconds, T=%.3f, using %d thread(s), FLOPS=%.3f ==\n\n", 
-                (s_elapsed * 1000), s_elapsed*loop_cnt, num_threads, (double)N * (double)N / s_elapsed);
+                " == at %.5f milliseconds, T=%.3f, using %d thread(s) FLOPS=%.3f ==\n\n", 
+                (s_elapsed * 1000), s_elapsed*loop_cnt, num_threads, (double)N*(double)N / s_elapsed);
     }
     
     if(myid==1)
         printf (" Deallocating memory \n\n");
         
     mkl_free(A);
-    mkl_free(B);
+    /*mkl_free(B);*/
     mkl_free(C);
     
     if (s_elapsed < 0.9/loop_cnt) {
@@ -178,8 +180,8 @@ int main(int argc, char** argv)
         average += time[i]; 
     average = average / threads;
     printf(" AE= %.3f ms, Each thread uses %.3f MB, Total_Memory_bandwidth= %f MB/s\n", 
-            average, 3*(double)N*(double)N*sizeof(double)/(1024*1024),
-            3*(double)N*(double)N*sizeof(double)*threads/(1024*1024*1e-3*average));
+            average, 2*(double)N*(double)N*sizeof(double)/(1024*1024),
+            2*(double)N*(double)N*sizeof(double)*threads/(1024*1024*1e-3*average));
 
 
     printf (" Example completed. \n\n");

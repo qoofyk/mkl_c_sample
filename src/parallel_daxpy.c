@@ -29,6 +29,7 @@
 #include "mkl.h"
 #include <omp.h>
 #include <string.h>
+#include "eval_tools.h"
 
 /* Consider adjusting LOOP_COUNT based on the performance of your computer */
 /* to make sure that total run time is at least 1 second */
@@ -113,11 +114,11 @@ int main(int argc, char** argv)
 
         printf (" Measuring performance of DAXPY\n"
                 " via CBLAS interface on %i thread(s) \n\n", i);
-        s_initial = dsecnd();
+        s_initial = get_cur_time();
         for (r = 0; r < loop_cnt; r++) {
             cblas_daxpy(N*N, alpha, A, 1, B, 1);
         }
-        s_elapsed = (dsecnd() - s_initial) / loop_cnt;
+        s_elapsed = (get_cur_time() - s_initial) / loop_cnt;
 
         printf (" == DAXPY completed ==\n"
                 " == at %.5f milliseconds, %.2f seconds, using %d thread(s) KFLOPS=%.3f ==\n\n", 

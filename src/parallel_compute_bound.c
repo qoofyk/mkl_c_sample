@@ -31,6 +31,7 @@
 #include <math.h>
 #include <limits.h>
 #include <string.h>
+#include "eval_tools.h"
 
 /* Consider adjusting LOOP_COUNT based on the performance of your computer */
 /* to make sure that total run time is at least 1 second */
@@ -48,7 +49,7 @@ int main(int argc, char** argv)
 #pragma omp parallel 
 {    
     int myid = omp_get_thread_num();
-    printf("I am thread%02d\n", myid); 
+    printf(" I am thread%02d\n", myid); 
 
     double *A, *B, *C;
     int m, n, p, i, j, k, r, max_threads, loop_cnt;
@@ -126,7 +127,7 @@ int main(int argc, char** argv)
         if(myid==1)
             printf (" Measuring performance of Compute Bound kernel\n\n");
         
-        s_initial = dsecnd();
+        s_initial = get_cur_time();
 
         for (r = 0; r < loop_cnt; r++) {
              for (i = 0; i < m*p; i++) {
@@ -140,11 +141,11 @@ int main(int argc, char** argv)
             }    
         }
 
-        s_elapsed = (dsecnd() - s_initial) / loop_cnt;
+        s_elapsed = (get_cur_time() - s_initial) / loop_cnt;
         time[myid] = s_elapsed * 1000;
 
         printf (" == Compute Bound kernel completed ==\n"
-                " == at %.5f milliseconds, %.2f seconds, using %d thread(s) MFLOPS=%.3f ==\n\n", 
+                " == at %.5f milliseconds, %.2f seconds, using %d thread(s), MFLOPS=%.3f ==\n\n", 
                 (s_elapsed * 1000), s_elapsed*loop_cnt, num_threads, 2*(double)N*bound / s_elapsed*1e-6);
     }
     
@@ -166,7 +167,7 @@ int main(int argc, char** argv)
         average += time[i]; 
     average = average / threads;
     printf(" AE= %.3f ms, Each thread uses %.3f MB\n", 
-            average,(double)N*(double)N*sizeof(double)/(1024*1024));
+            average, (double)N*(double)N*sizeof(double)/(1024*1024));
 
     printf (" Example completed. \n\n");
     return 0;

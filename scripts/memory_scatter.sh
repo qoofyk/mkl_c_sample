@@ -8,12 +8,12 @@ cd ${RESULT_DIR}
 
 #threads=(1 2 4 8 16 28)
 N=1024
-loop_count=2000
+loop_count=1000
 step=256
 for i in `seq 1`
 do
     #for((k=0; k<${#N[@]};k++)); do
-    for k in `seq 72`
+    for k in `seq $max_num_threads`
     do    
         for CASE_NAME in memory_bound
         do
@@ -21,7 +21,7 @@ do
         export OMP_NUM_THREADS=$k
         export KMP_AFFINITY=verbose,granularity=fine,scatter
         ${BUILD_DIR}/parallel_${CASE_NAME} -size $N -cnt $loop_count -step $step &>> ${RESULT_DIR}/log
-        echo "No.$i exp of case ${CASE_NAME} done " &>> ${RESULT_DIR}/log
+        echo "No.$i exp of case ${CASE_NAME} loop_cnt=$loop_count step=$step done " &>> ${RESULT_DIR}/log
         done
     done
 done

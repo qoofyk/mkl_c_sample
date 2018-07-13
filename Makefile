@@ -24,7 +24,7 @@ BUILDDIR := release
 CCFLAGS := -std=c++11 -qopenmp -O3
 LIBFLAGS := -mkl -static-intel 
 
-all: $(BUILDDIR)/dgemm_example $(BUILDDIR)/dgemm_with_timing $(BUILDDIR)/matrix_multiplication $(BUILDDIR)/dgemm_threading_effect_example $(BUILDDIR)/parallel_dgemm  $(BUILDDIR)/parallel_daxpy $(BUILDDIR)/parallel_compute_bound $(BUILDDIR)/parallel_memory_bound $(BUILDDIR)/parallel_compute_imbalance $(BUILDDIR)/parallel_memory_imbalance
+all: $(BUILDDIR)/dgemm_example $(BUILDDIR)/dgemm_with_timing $(BUILDDIR)/matrix_multiplication $(BUILDDIR)/dgemm_threading_effect_example $(BUILDDIR)/parallel_dgemm  $(BUILDDIR)/parallel_daxpy $(BUILDDIR)/parallel_memcpy $(BUILDDIR)/parallel_compute_bound $(BUILDDIR)/parallel_memory_bound $(BUILDDIR)/parallel_compute_imbalance $(BUILDDIR)/parallel_memory_imbalance
 
 
 $(BUILDDIR)/%: $(BUILDDIR)/%.o
@@ -51,6 +51,9 @@ run_parallel_dgemm: $(BUILDDIR)/parallel_dgemm
 
 run_parallel_daxpy: $(BUILDDIR)/parallel_daxpy
 	./$(BUILDDIR)/parallel_daxpy
+
+run_parallel_memcpy: $(BUILDDIR)/parallel_memcpy
+	./$(BUILDDIR)/parallel_memcpy
 
 run_parallel_compute_bound: $(BUILDDIR)/parallel_compute_bound
 	./$(BUILDDIR)/parallel_compute_bound

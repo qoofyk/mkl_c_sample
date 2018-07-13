@@ -6,14 +6,14 @@ BUILD_DIR=${WORK_DIR}/release
 cd ${RESULT_DIR}
 
 
-threads=(1 2 4 8 16 28)
+#threads=(1 2 4 8 16 28)
 N=256
 loop_count=2000
 bound=200
 for i in `seq 1`
 do
     #for((k=0; k<${#N[@]};k++)); do
-    for k in `seq 72`
+    for k in `seq $max_num_threads`
     do    
         for CASE_NAME in compute_bound
         do

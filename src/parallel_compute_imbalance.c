@@ -28,7 +28,7 @@
 #include <math.h>
 #include <limits.h>
 #include <string.h>
-/*#include <time.h>*/
+#include "eval_tools.h"
 
 /* Consider adjusting LOOP_COUNT based on the performance of your computer */
 /* to make sure that total run time is at least 1 second */
@@ -125,7 +125,7 @@ int main(int argc, char** argv)
         if(myid==1)
             printf (" Measuring performance of Compute Bound kernel\n\n");
 
-        s_initial = dsecnd();
+        s_initial = get_cur_time();
 
         for (r = 0; r < loop_cnt; r++) {
              for (i = 0; i < m*p; i++) {
@@ -139,7 +139,7 @@ int main(int argc, char** argv)
             }    
         }
 
-        s_elapsed = (dsecnd() - s_initial) / loop_cnt;
+        s_elapsed = (get_cur_time() - s_initial) / loop_cnt;
         time[myid] = s_elapsed * 1000;
         
         printf (" == Compute Bound kernel completed ==\n"
