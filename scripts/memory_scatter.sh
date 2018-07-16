@@ -9,7 +9,7 @@ cd ${RESULT_DIR}
 #threads=(1 2 4 8 16 28)
 N=1024
 loop_count=1000
-step=256
+#step=256
 for i in `seq 1`
 do
     #for((k=0; k<${#N[@]};k++)); do

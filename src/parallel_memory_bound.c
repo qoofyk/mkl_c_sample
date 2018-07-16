@@ -40,6 +40,7 @@
 int main(int argc, char** argv)
 {
     double time[128]; 
+    double bandwidth[128];
     int N;
     int threads = atoi(getenv("OMP_NUM_THREADS"));
 
@@ -150,10 +151,11 @@ int main(int argc, char** argv)
 
         s_elapsed = (get_cur_time() - s_initial) / (double) loop_cnt;
         time[myid] = s_elapsed * 1000;
+        bandwidth[myid] = 3*(double)N*(double)N*sizeof(double)/(1024*1024*s_elapsed);
 
         printf (" == Memory bound kernel completed ==\n"
-                " == at %.5f milliseconds, T=%.3f, using %d thread(s), FLOPS=%.3f ==\n\n", 
-                (s_elapsed * 1000), s_elapsed*loop_cnt, num_threads, (double)N * (double)N / s_elapsed);
+                " == at %.5f milliseconds, T=%.3f, using %d thread(s), MB= %.3f MB/s, FLOPS=%.3f ==\n\n", 
+                (s_elapsed * 1000), s_elapsed*loop_cnt, num_threads, bandwidth[myid], (double)N * (double)N / s_elapsed);
     }
     
     if(myid==1)
@@ -173,13 +175,17 @@ int main(int argc, char** argv)
 }
 
     // compute average
-    double average=0.0;
-    for (int i=0; i < threads; i++)
-        average += time[i]; 
-    average = average / threads;
-    printf(" AE= %.3f ms, Each thread uses %.3f MB, Total_Memory_bandwidth= %f MB/s\n", 
-            average, 3*(double)N*(double)N*sizeof(double)/(1024*1024),
-            3*(double)N*(double)N*sizeof(double)*threads/(1024*1024*1e-3*average));
+    double a_time=0.0, a_bandwidth=0.0;
+    for (int i=0; i < threads; i++){
+        a_time += time[i]; 
+        a_bandwidth += bandwidth[i];
+    }   
+    a_time = a_time / threads;
+    a_bandwidth = a_bandwidth / threads;
+    printf(" AE= %.3f ms, Each thread uses %.3f MB, AE_MB= %.3f MB/s\n", 
+            a_time, 
+            3*(double)N*(double)N*sizeof(double)/(1024*1024),
+            a_bandwidth);
 
 
     printf (" Example completed. \n\n");
