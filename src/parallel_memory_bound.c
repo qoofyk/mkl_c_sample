@@ -139,6 +139,7 @@ int main(int argc, char** argv)
 
         if(myid==1)
             printf (" Measuring performance of memory bound kernel\n\n");
+#pragma omp barrier
         s_initial = get_cur_time();
         for (r = 0; r < loop_cnt; r++) {
             for (i = 0; i < step; i++) {
@@ -148,7 +149,7 @@ int main(int argc, char** argv)
                 }
             }   
         }
-
+#pragma omp barrier
         s_elapsed = (get_cur_time() - s_initial) / (double) loop_cnt;
         time[myid] = s_elapsed * 1000;
         bandwidth[myid] = 3*(double)N*(double)N*sizeof(double)/(1024*1024*s_elapsed);
@@ -182,10 +183,10 @@ int main(int argc, char** argv)
     }   
     a_time = a_time / threads;
     a_bandwidth = a_bandwidth / threads;
-    printf(" AE= %.3f ms, Each thread uses %.3f MB, AE_MB= %.3f MB/s\n", 
+    printf(" AE= %.3f ms, Each thread uses %.3f MB, AE_MB= %.3f MB/s, T_MB= %.3f MB/s\n", 
             a_time, 
             3*(double)N*(double)N*sizeof(double)/(1024*1024),
-            a_bandwidth);
+            a_bandwidth, a_bandwidth*threads);
 
 
     printf (" Example completed. \n\n");
