@@ -7,10 +7,17 @@ mkdir results
 make 
 
 Run:
+cd release
 export OMP_NUM_THREADS=2
 export KMP_AFFINITY=verbose,granularity=fine,compact,1,0
 export KMP_AFFINITY=verbose,granularity=fine,scatter
 
+To test parallel MKL dgemm
+./parallel_dgemm -size 2560 -cnt 20
+To test paralle MKL daxpy
+./parallel_daxpy -size 2560 -cnt 200
+
+To test my kernel
 ./parallel_compute_bound -size 2560 -cnt 200 -bound 20
 ./parallel_memory_bound -size 2560 -cnt 300 -step 1024
 
