@@ -145,8 +145,8 @@ int main(int argc, char** argv)
         time[myid] = s_elapsed * 1000;
 
         printf (" == Compute Bound kernel completed ==\n"
-                " == at %.5f milliseconds, %.2f seconds, using %d thread(s), MFLOPS=%.3f ==\n\n", 
-                (s_elapsed * 1000), s_elapsed*loop_cnt, num_threads, 2*(double)N*bound / s_elapsed*1e-6);
+                " == at %.5f milliseconds, %.2f seconds, using %d thread(s), FLOPS=%e ==\n\n", 
+                (s_elapsed * 1000), s_elapsed*loop_cnt, num_threads, 2*(double)N*(double)N*bound / s_elapsed);
     }
     
     if(myid==1)

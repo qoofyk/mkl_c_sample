@@ -139,7 +139,7 @@ int main(int argc, char** argv)
 
         printf (" == Matrix multiplication using Intel(R) MKL dgemm completed ==\n"
                 " == at %.5f milliseconds, %.2f seconds, using %d thread(s), GFLOPS=%.3f ==\n\n", 
-                (s_elapsed * 1000), i, s_elapsed*loop_cnt , 2*(double)N*(double)N*(double)N/s_elapsed*1e-9);
+                (s_elapsed * 1000), s_elapsed*loop_cnt, i, 2*(double)N*(double)N*(double)N/s_elapsed*1e-9);
     }
     
     if (myid == 0)
