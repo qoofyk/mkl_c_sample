@@ -15,14 +15,14 @@ loop_count=20000
 for i in `seq 1`
 do
     #for((k=0; k<${#N[@]};k++)); 
-    for k in `seq $max_num_threads`
+    for k in `seq $max_threads`
     do    
         for CASE_NAME in memcpy
         do
         #export OMP_NUM_THREADS=${threads[k]}
         export OMP_NUM_THREADS=$k
         export KMP_AFFINITY=verbose,granularity=fine,compact
-        ${BUILD_DIR}/parallel_${CASE_NAME} -size $N -cnt $loop_count &>> ${RESULT_DIR}/log
+        ${BUILD_DIR}/parallel_${CASE_NAME} -size $N -iter $loop_count &>> ${RESULT_DIR}/log
         echo "No.$i exp of case ${CASE_NAME} done " &>> ${RESULT_DIR}/log
         done
     done

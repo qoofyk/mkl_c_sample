@@ -63,7 +63,7 @@ int main(int argc, char** argv)
       if (!strcmp(argv[i], "-size")) {
             m =  p =  n = atoi(argv[++i]);
       }
-      if (!strcmp(argv[i], "-cnt")) {
+      if (!strcmp(argv[i], "-iter")) {
             loop_cnt = atoi(argv[++i]);
       }
     }    

@@ -37,107 +37,132 @@
 
 int main(int argc, char** argv)
 {
-    printf ("\n This example demonstrates threading impact on computing real matrix product \n"
-            " C=alpha*A*B+beta*C using Intel(R) MKL function dgemm, where A, B, and C are \n"
-            " matrices and alpha and beta are double precision scalars \n\n");
+    double time[128]; 
+    double bandwidth[128];
+    int N;
+    int threads = atoi(getenv("OMP_NUM_THREADS"));
+
+    printf ("\n This example demonstrates threading impact on computing real daxpy\n"
+            " C=alpha*A+beta*B using Intel(R) MKL function daxpy, where A, B, and C are \n"
+            " arrays and alpha and beta are double precision scalars \n\n");
  
 #pragma omp parallel 
 {    
-    printf("I am thread%d\n",omp_get_thread_num()); 
+    int myid = omp_get_thread_num();
+    printf("I am thread%d\n", myid); 
 
-    double *A, *B, *C;
-    int m, n, p, i, j, r, max_threads, loop_cnt;
+    double *A, *B;
+    int i, j, r, max_threads, loop_cnt;
     double alpha, beta;
     double s_initial, s_elapsed;
 
     loop_cnt =  LOOP_COUNT;
    
-    m =  p =  n = 2560;
+    N = 2560;
 
     //parse command line
     for (i = 1; i < argc; i++) {
       if (!strcmp(argv[i], "-size")) {
-            m =  p =  n = atoi(argv[++i]);
+            N  = atoi(argv[++i]);
       }
-      if (!strcmp(argv[i], "-cnt")) {
+      if (!strcmp(argv[i], "-iter")) {
             loop_cnt = atoi(argv[++i]);
       }
     }    
 
-    int N = m;
-    printf (" N=%d, loop_cnt=%d\n", N, loop_cnt);
+    if(myid==1)
+    printf (" array_size=%d, loop_cnt=%d\n", N, loop_cnt);
 
-    printf (" Initializing data for matrix multiplication C=A*B for matrix \n"
-            " A(%ix%i) and matrix B(%ix%i)\n\n", m, p, p, n);
-    alpha = 1.0; beta = 0.0;
+    if(myid==1)
+    printf (" Initializing data for daxpy\n");
+    alpha = 1.0121; 
+    beta = 2.012;
     
+    if(myid==1)
     printf (" Allocating memory for matrices aligned on 64-byte boundary for better \n"
             " performance \n\n");
-    A = (double *)mkl_malloc( m*p*sizeof( double ), 64 );
-    B = (double *)mkl_malloc( p*n*sizeof( double ), 64 );
-    C = (double *)mkl_malloc( m*n*sizeof( double ), 64 );
-    if (A == NULL || B == NULL || C == NULL) {
+    A = (double *)mkl_malloc( N*sizeof( double ), 64 );
+    B = (double *)mkl_malloc( N*sizeof( double ), 64 );
+    if (A == NULL || B == NULL) {
         printf( "\n ERROR: Can't allocate memory for matrices. Aborting... \n\n");
         mkl_free(A);
         mkl_free(B);
-        mkl_free(C);
         /*return 1;*/
     }
 
+    if(myid==1)
     printf (" Intializing matrix data \n\n");
-    for (i = 0; i < (m*p); i++) {
+    for (i = 0; i < N; i++) {
         A[i] = (double)(i+1);
     }
 
-    for (i = 0; i < (p*n); i++) {
+    for (i = 0; i < N; i++) {
         B[i] = (double)(-i-1);
     }
 
-    for (i = 0; i < (m*n); i++) {
-        C[i] = 0.0;
-    }
-
+    if(myid==1)
     printf (" Finding max number of threads Intel(R) MKL can use for parallel runs \n\n");
     max_threads = mkl_get_max_threads();
 
+    if(myid==1)
     printf (" Running Intel(R) MKL from 1 to %i threads \n\n", max_threads);
     for (i = 1; i <= max_threads; i++) {
-        for (j = 0; j < (m*n); j++)
-            C[j] = 0.0;
-        
+                
+        if(myid==1)
         printf (" Requesting Intel(R) MKL to use %i thread(s) \n\n", i);
         mkl_set_num_threads(1);
 
+        if(myid==1)
         printf (" Making the first run of DAXPY\n"
                 " via CBLAS interface to get stable run time measurements \n\n");
-        cblas_daxpy(N*N, alpha, A, 1, B, 1);
+        cblas_daxpy(N, alpha, A, 1, B, 1);
 
+        if(myid==1)
         printf (" Measuring performance of DAXPY\n"
                 " via CBLAS interface on %i thread(s) \n\n", i);
+#pragma omp barrier
         s_initial = get_cur_time();
         for (r = 0; r < loop_cnt; r++) {
-            cblas_daxpy(N*N, alpha, A, 1, B, 1);
+            cblas_daxpy(N, alpha, A, 1, B, 1);
         }
+#pragma omp barrier
         s_elapsed = (get_cur_time() - s_initial) / loop_cnt;
+        time[myid] = s_elapsed * 1000;
+        bandwidth[myid] = 3*(double)N*sizeof(double)/(1024*1024*s_elapsed);
 
         printf (" == DAXPY completed ==\n"
-                " == at %.5f milliseconds, %.2f seconds, using %d thread(s) KFLOPS=%.3f ==\n\n", 
-                (s_elapsed * 1000), s_elapsed*loop_cnt, i, 2*(double)N/s_elapsed*1e-3);
+                " == at %.5f milliseconds, %.2f seconds, using %d thread(s), MB= %.3f, FLOPS=%e ==\n\n", 
+                (s_elapsed * 1000), s_elapsed*loop_cnt, i, bandwidth[myid],3*(double)N/s_elapsed);
     }
     
+    if(myid==1)
     printf (" Deallocating memory \n\n");
     mkl_free(A);
     mkl_free(B);
-    mkl_free(C);
     
     if (s_elapsed < 0.9/loop_cnt) {
         s_elapsed=1.0/loop_cnt/s_elapsed;
         i=(int)(s_elapsed*loop_cnt)+1;
+        if(myid==1)
         printf(" It is highly recommended to define LOOP_COUNT for this example on your \n"
                " computer as %i to have total execution time about 1 second for reliability \n"
                " of measurements\n\n", i);
     }
 }
+
+    // compute average
+    double a_time=0.0, a_bandwidth=0.0;
+    for (int i=0; i < threads; i++){
+        a_time += time[i]; 
+        a_bandwidth += bandwidth[i];
+    }   
+    a_time = a_time / threads;
+    a_bandwidth = a_bandwidth / threads;
+    printf(" AE= %.3f ms, Each thread uses %.3f MB, AE_MB= %.3f MB/s, T_MB= %.3f MB/s, FLOPS=%e\n", 
+            a_time, 
+            2*(double)N * sizeof(double)/(1024*1024),
+            a_bandwidth, a_bandwidth*threads, 3*N*1e3/a_time);
+
     printf (" Example completed. \n\n");
     return 0;
  

@@ -20,7 +20,7 @@ do
         #export OMP_NUM_THREADS=${threads[k]}
         export OMP_NUM_THREADS=1
         export KMP_AFFINITY=verbose,granularity=fine,compact
-        ${BUILD_DIR}/parallel_${CASE_NAME} -size ${N[k]} -cnt $loop_count &>> ${RESULT_DIR}/log
+        ${BUILD_DIR}/parallel_${CASE_NAME} -size ${N[k]} -iter $loop_count &>> ${RESULT_DIR}/log
         echo "No.$i exp of case ${CASE_NAME} done " &>> ${RESULT_DIR}/log
         done
     done

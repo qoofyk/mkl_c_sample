@@ -54,43 +54,38 @@ int main(int argc, char** argv)
     printf("I am thread%02d\n", myid); 
 
     double *A, *B, *C;
-    int m, n, p, i, j, k, r, max_threads, loop_cnt;
+    int i, j, k, r, max_threads, loop_cnt;
     double alpha, beta;
     double sum;
     double s_initial, s_elapsed;
    
-    m =  p =  n = 2560;
+    int N = 2560;
     int step = 1024;
     loop_cnt = LOOP_COUNT;
 
     //parse command line
     for (i = 1; i < argc; i++) {
       if (!strcmp(argv[i], "-size")) {
-            m =  p =  n = atoi(argv[++i]);
+        N = atoi(argv[++i]);
       }
-      if (!strcmp(argv[i], "-cnt")) {
-            loop_cnt = atoi(argv[++i]);
+      if (!strcmp(argv[i], "-iter")) {
+        loop_cnt = atoi(argv[++i]);
       }
       if (!strcmp(argv[i], "-step")) {
-            step = atoi(argv[++i]);
+        step = atoi(argv[++i]);
       }
     }    
 
-    N = m;
-
     printf (" N=%d, loop_cnt=%d, step=%d\n", N, loop_cnt, step);
 
-    if(myid==1)
-        printf (" Initializing data for matrix multiplication C=A*B for matrix \n"
-                " A(%ix%i) and matrix B(%ix%i)\n\n", m, p, p, n);
-    alpha = 1.0; beta = 2.0;
+    alpha = 1.0121; beta = 2.0202;
     
     if(myid==1)
         printf (" Allocating memory for matrices aligned on 64-byte boundary for better \n"
                 " performance \n\n");
-    A = (double *)mkl_malloc( m*p*sizeof( double ), 64 );
-    B = (double *)mkl_malloc( p*n*sizeof( double ), 64 );
-    C = (double *)mkl_malloc( m*n*sizeof( double ), 64 );
+    A = (double *)mkl_malloc( N*sizeof( double ), 64 );
+    B = (double *)mkl_malloc( N*sizeof( double ), 64 );
+    C = (double *)mkl_malloc( N*sizeof( double ), 64 );
     if (A == NULL || B == NULL || C == NULL) {
         printf( "\n ERROR: Can't allocate memory for matrices. Aborting... \n\n");
         mkl_free(A);
@@ -100,15 +95,15 @@ int main(int argc, char** argv)
 
     if(myid==1)
         printf (" Intializing matrix data \n\n");
-    for (i = 0; i < (m*p); i++) {
+    for (i = 0; i < N; i++) {
         A[i] = (double)(i+1);
     }
 
-    for (i = 0; i < (p*n); i++) {
+    for (i = 0; i < N; i++) {
         B[i] = (double)(-i-1);
     }
 
-    for (i = 0; i < (m*n); i++) {
+    for (i = 0; i < N; i++) {
         C[i] = 0.0;
     }
 
@@ -120,7 +115,7 @@ int main(int argc, char** argv)
         printf (" Running Intel(R) MKL from 1 to %i threads \n\n", max_threads);
     for (int num_threads = 1; num_threads <= max_threads; num_threads++) {
         
-        for (j = 0; j < (m*n); j++)
+        for (j = 0; j < N; j++)
             C[j] = 0.0;
         
         /*printf (" Requesting Intel(R) MKL to use %i thread(s) \n\n", i);*/
@@ -130,10 +125,10 @@ int main(int argc, char** argv)
             printf (" Making the first run of memory bound kernel\n"
                 " to get stable run time measurements \n\n");
         for (i = 0; i < step; i++) {
-           for (j = 0; j < (N*N/step); j++) {
-               k = (i+j*step) % (N*N);
+           for (j = 0; j < (N/step); j++) {
+               k = (i+j*step) % N;
                /*printf("i=%d, j=%d, k=%d\n", i, j, k);*/
-               C[k] = A[k] + B[k]; 
+               C[k] = alpha*A[k] + beta*B[k]; 
            }    
         }
 
@@ -143,8 +138,8 @@ int main(int argc, char** argv)
         s_initial = get_cur_time();
         for (r = 0; r < loop_cnt; r++) {
             for (i = 0; i < step; i++) {
-                for (j = 0; j < (N*N/step); j++) {
-                   k = (i+j*step) % (N*N);
+                for (j = 0; j < (N/step); j++) {
+                   k = (i+j*step) % N;
                    C[k] = A[k] + B[k]; 
                 }
             }   
@@ -152,11 +147,11 @@ int main(int argc, char** argv)
 #pragma omp barrier
         s_elapsed = (get_cur_time() - s_initial) / (double) loop_cnt;
         time[myid] = s_elapsed * 1000;
-        bandwidth[myid] = 3*(double)N*(double)N*sizeof(double)/(1024*1024*s_elapsed);
+        bandwidth[myid] = 3*(double)N*sizeof(double)/(1024*1024*s_elapsed);
 
         printf (" == Memory bound kernel completed ==\n"
                 " == at %.5f milliseconds, T=%.3f, using %d thread(s), MB= %.3f MB/s, FLOPS=%.3f ==\n\n", 
-                (s_elapsed * 1000), s_elapsed*loop_cnt, num_threads, bandwidth[myid], (double)N * (double)N / s_elapsed);
+                (s_elapsed * 1000), s_elapsed*loop_cnt, num_threads, bandwidth[myid], 4*(double)N / s_elapsed);
     }
     
     if(myid==1)
@@ -183,10 +178,10 @@ int main(int argc, char** argv)
     }   
     a_time = a_time / threads;
     a_bandwidth = a_bandwidth / threads;
-    printf(" AE= %.3f ms, Each thread uses %.3f MB, AE_MB= %.3f MB/s, T_MB= %.3f MB/s\n", 
+    printf(" AE= %.3f ms, Each thread uses %.3f MB, AE_MB= %.3f MB/s, T_MB= %.3f MB/s, FLOPS=%e\n", 
             a_time, 
-            3*(double)N*(double)N*sizeof(double)/(1024*1024),
-            a_bandwidth, a_bandwidth*threads);
+            3*(double)N*sizeof(double)/(1024*1024),
+            a_bandwidth, a_bandwidth*threads, 6*N*1e3/a_time);
 
 
     printf (" Example completed. \n\n");

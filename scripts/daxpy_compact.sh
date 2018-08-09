@@ -1,5 +1,5 @@
 WORK_DIR=`pwd`
-RESULT_DIR=${WORK_DIR}/results/`date +"memory_compact_%y%m%d_%H%M"`
+RESULT_DIR=${WORK_DIR}/results/`date +"daxpy_compact_%y%m%d_%H%M"`
 mkdir -pv ${RESULT_DIR}
 
 BUILD_DIR=${WORK_DIR}/release
@@ -7,23 +7,23 @@ cd ${RESULT_DIR}
 
 
 #threads=(1 2 4 8 16 28)
-N=1024
+N=1048576
 loop_count=1000
-step=256
+
 for i in `seq 1`
 do
     #for((k=0; k<${#N[@]};k++)); do
-    for k in `seq $max_num_threads`
+    for k in `seq $max_threads`
     do    
-        for CASE_NAME in memory_bound
+        for CASE_NAME in daxpy
         do
         #export OMP_NUM_THREADS=${threads[k]}
         export OMP_NUM_THREADS=$k
         export KMP_AFFINITY=verbose,granularity=fine,compact,1,0
-        ${BUILD_DIR}/parallel_${CASE_NAME} -size $N -iter $loop_count -step $step &>> ${RESULT_DIR}/log
-        echo "No.$i exp of case ${CASE_NAME} loop_cnt=$loop_count step=$step done " &>> ${RESULT_DIR}/log
+        ${BUILD_DIR}/parallel_${CASE_NAME} -size $N -iter $loop_count &>> ${RESULT_DIR}/log
+        echo "No.$i threads=$k exp of case ${CASE_NAME} loop_cnt=$loop_count done " &>> ${RESULT_DIR}/log
         echo &>> ${RESULT_DIR}/log
-        echo &>> ${RESULT_DIR}/log
+        echo &>> ${RESULT_DIR}/log 
         done
     done
 done

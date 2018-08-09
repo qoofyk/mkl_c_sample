@@ -13,7 +13,7 @@ loop_count=1000
 for i in `seq 1`
 do
     #for((k=0; k<${#N[@]};k++)); do
-    for k in `seq $max_num_threads`
+    for k in `seq $max_threads`
     do    
         for CASE_NAME in memory_bound
         do

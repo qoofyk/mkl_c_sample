@@ -129,17 +129,17 @@ int main(int argc, char** argv)
         
         s_initial = get_cur_time();
 
+        temp = A[i];
         for (r = 0; r < loop_cnt; r++) {
              for (i = 0; i < m*p; i++) {
-                temp = A[i];
                 sum = temp;
                 for (j=0; j<bound; j++){
                     temp *=temp;
                     sum += temp;
                 }    
-                A[i] = sum;
             }    
         }
+        A[i] = sum;
 
         s_elapsed = (get_cur_time() - s_initial) / loop_cnt;
         time[myid] = s_elapsed * 1000;
